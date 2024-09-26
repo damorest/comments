@@ -17,3 +17,6 @@ const String forgetPass = 'forget password?';
 const String loggedIn = 'logged in';
 const String createNewAccount = 'create new account';
 const String loginWith = 'login with';
+const String userCreateMessage = 'User registered successfully';
+const String userAlreadyExist = 'User already exists, redirecting to login';
+const String firebaseExceptionUserAlreadyInUse = 'email-already-in-use';

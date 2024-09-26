@@ -1,3 +1,6 @@
+import 'package:comments/consts/firebase_consts.dart';
+import 'package:comments/screens/home_screen/home_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../blocs/auth/auth_cubit.dart';
@@ -16,10 +19,28 @@ class RegisteredPage extends StatefulWidget {
 }
 
 class _RegisteredPageState extends State<RegisteredPage> {
+  FirebaseAuth _auth = auth;
   var nameController = TextEditingController();
   var emailController = TextEditingController();
   var passwordController = TextEditingController();
   var retypePasswordController = TextEditingController();
+
+  Future<void> checkUserExist(String email, String password) async {
+    try {
+      await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      showSnackBar(context, mainColor, userCreateMessage);
+      nextScreen(context, const MyHomePage());
+    } on FirebaseAuthException catch (e) {
+      if (e.code == firebaseExceptionUserAlreadyInUse) {
+        nextScreen(context, const LoginPage());
+        showSnackBar(context, redColor, userAlreadyExist);
+      }else {
+        showSnackBar(context, redColor, e.toString());
+      }
+    } catch (e) {
+      showSnackBar(context, redColor, e.toString());
+    }
+  }
 
   @override
   void initState() {
@@ -33,7 +54,6 @@ class _RegisteredPageState extends State<RegisteredPage> {
   void _updateButtonState() {
     setState(() {});
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -130,7 +150,8 @@ class _RegisteredPageState extends State<RegisteredPage> {
                                 : myButton(
                                     color: nameController.text.isNotEmpty &&
                                             emailController.text.isNotEmpty &&
-                                            passwordController.text.isNotEmpty &&
+                                            passwordController
+                                                .text.isNotEmpty &&
                                             retypePasswordController
                                                 .text.isNotEmpty
                                         ? mainColor
@@ -139,12 +160,8 @@ class _RegisteredPageState extends State<RegisteredPage> {
                                     textColor: whiteColor,
                                     onPress: () async {
                                       try {
-                                        print('Проверка есть ли такой юзер');
-                                        //   если есть, сообщаем и переходим на экран авторизации
-                                        nextScreen(context, LoginPage());
-                                      //   если нет, регистрируем нового юзера и заходим с новыми данными
+                                        await checkUserExist(emailController.text, passwordController.text);
                                       } catch (e) {
-                                        // auth.signOut();
                                         showSnackBar(context, mainColor, e);
                                       }
                                     },
@@ -197,5 +214,4 @@ class _RegisteredPageState extends State<RegisteredPage> {
     retypePasswordController.dispose();
     super.dispose();
   }
-
 }
