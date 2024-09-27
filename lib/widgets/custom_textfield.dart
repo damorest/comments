@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../consts/colors.dart';
 
-Widget customTextField({String? lable, String? hint, controller, isPass}) {
+Widget customTextField({String? lable, String? hint, controller, bool isPass = false,}) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [

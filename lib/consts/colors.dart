@@ -7,3 +7,4 @@ const Color lightGrey = Color.fromRGBO(239, 239, 239, 1);
 const Color whiteColor = Colors.white;
 const Color cardColor = Color.fromRGBO(164, 205, 247, 1);
 const Color redColor = Colors.redAccent;
+const Color rateColor = Colors.yellow;

@@ -1,4 +1,5 @@
 import 'package:comments/blocs/auth/auth_cubit.dart';
+import 'package:comments/blocs/user_cubit/user_cubit.dart';
 import 'package:comments/screens/auth_screen/login_screen/login_page.dart';
 import 'package:comments/screens/auth_screen/registered_screen/registered_screen.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,7 @@ Future<void> main() async{
   runApp(MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => AuthCubit()),
+        BlocProvider(create: (_) => UserCubit()),
       ],
       child: const MyApp())
       );
