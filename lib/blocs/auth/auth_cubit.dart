@@ -55,7 +55,7 @@ class AuthCubit extends Cubit<AuthState> {
         emit(AuthFailure(e.toString()));
       }
     } catch (e) {
-      emit(AuthFailure('${e.toString()}'));
+      emit(AuthFailure(e.toString()));
     }
   }
 
@@ -79,7 +79,7 @@ class AuthCubit extends Cubit<AuthState> {
         emit(AuthFailure(e.toString()));
       }
     } catch (e) {
-      emit(AuthFailure('${e.toString()}'));
+      emit(AuthFailure(e.toString()));
     }
   }
 
@@ -123,10 +123,10 @@ class AuthCubit extends Cubit<AuthState> {
       comments: [],
       isAdmin: false,
     );
-    final DatabaseReference _userRef = FirebaseDatabase.instance.ref().child(usersCollection);
+    final DatabaseReference userRef = dataBase.ref().child(usersCollection);
 
     try {
-      await _userRef.child(userId).set(newUser.toMap());
+      await userRef.child(userId).set(newUser.toMap());
       print('User added to database');
     } catch (e) {
       print('Error adding user to database: $e');

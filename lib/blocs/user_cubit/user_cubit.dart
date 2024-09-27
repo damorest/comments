@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:comments/consts/firebase_consts.dart';
 import 'package:comments/models/user_model.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,32 +15,41 @@ class UserState extends Equatable {
 }
 
 class UserCubit extends Cubit<UserState> {
-  final DatabaseReference _userRef = FirebaseDatabase.instance.ref().child('users');
+  final DatabaseReference _userRef =
+      dataBase.ref().child(usersCollection);
 
   UserCubit() : super(const UserState());
 
   Future<void> fetchUsers() async {
-    _userRef.onValue.listen((event) {
-      final data = event.snapshot.value as Map<dynamic, dynamic>?;
+    final snapshot = await _userRef.once();
+    final data = snapshot.snapshot.value as Map<dynamic, dynamic>?;
 
-      if (data != null) {
-        final List<UserModel> users = data.entries.map((entry) {
-          return UserModel.fromMap(entry.value);
-        }).toList();
+    if (data != null) {
+      final List<UserModel> users = data.entries.map((entry) {
+        return UserModel.fromMap(entry.value);
+      }).toList();
 
-        emit(UserState(users: users));
-      }
-    });
+      emit(UserState(users: users));
+    } else {
+      emit(UserState());
+    }
   }
 
-  // void updateUser(UserModel user) {
-  //   bool isAdmin = user.isAdmin;
-  //   emit(UserState(user: user, isAdmin: isAdmin));
-  // }
 
+  UserModel? getCurrentUser() {
+    try {
+      final currentUser = auth.currentUser;
+      if (currentUser != null) {
+        return state.users.firstWhere((user) => user.userId == currentUser.uid);
+      }
+      return null;
+    } catch (e) {
+      print('No users found');
+      return null;
+    }
+  }
 
   void clearUser(User user) {
     emit(const UserState());
   }
-
 }
