@@ -1,4 +1,5 @@
 import 'package:comments/consts/strings.dart';
+import 'package:comments/screens/home_screen/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../blocs/auth/auth_cubit.dart';
@@ -75,123 +76,129 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 child: Padding(
                   padding: const EdgeInsets.only(left: 16.0, right: 16.0),
-                  child: BlocBuilder<AuthCubit, AuthState>(
-                      builder: (context, state) => Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 16),
-                          child: customTextField(
-                              lable: email,
-                              hint: emailHint,
-                              isPass: false,
-                              controller: emailController
+                  child: BlocListener<AuthCubit, AuthState>(
+                    listener: (context, state) {
+                      if (state is AuthSuccess) {
+                        nextScreen(context, const MyHomePage());
+                      } else if (state is AuthUserNotFound) {
+                        showSnackBar(context, redColor, userNotFound);
+                      } else if (state is AuthFailure) {
+                        showSnackBar(context, redColor, state.error);
+                      }
+                    },
+                    child: BlocBuilder<AuthCubit, AuthState>(
+                        builder: (context, state) => Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 16),
+                            child: customTextField(
+                                lable: email,
+                                hint: emailHint,
+                                isPass: false,
+                                controller: emailController
+                            ),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 16),
-                          child: customTextField(
-                              lable: password,
-                              hint: passwordHint,
-                              isPass: true,
-                              controller: passwordController),
-                        ),
-                        Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton(
-                                onPressed: () {},
-                                child: const Text(
-                                  forgetPass,
-                                  style: TextStyle(
-                                      color: darkFontGrey
-                                  ),
-                                ))),
-                        const SizedBox(height: 5),
-                        SizedBox(
-                          width: double.infinity,
-                          child:
-                          state is AuthLoading
-                              ? const CircularProgressIndicator(
-                            valueColor:
-                            AlwaysStoppedAnimation(mainColor),
-                          )
-                              :
-                          myButton(
-                              color: emailController.text.isNotEmpty &&
-                                  passwordController.text.isNotEmpty
-                                  ? mainColor
-                              :lightGrey,
-                              title: login,
-                              textColor: whiteColor,
-                              onPress: () async {
-                                try {
-                                //   авторизация юзера
-                                }catch (error) {
-                                  showSnackBar(context, redColor, error.toString());
-                                  print("ERROR : ${error.toString()}");
-                                }
+                          Padding(
+                            padding: const EdgeInsets.only(top: 16),
+                            child: customTextField(
+                                lable: password,
+                                hint: passwordHint,
+                                isPass: true,
+                                controller: passwordController),
+                          ),
+                          const SizedBox(height: 15),
+                          SizedBox(
+                            width: double.infinity,
+                            child:
+                            state is AuthLoading
+                                ? const CircularProgressIndicator(
+                              valueColor:
+                              AlwaysStoppedAnimation(mainColor),
+                            )
+                                :
+                            myButton(
+                                color: emailController.text.isNotEmpty &&
+                                    passwordController.text.isNotEmpty
+                                    ? mainColor
+                                :lightGrey,
+                                title: login,
+                                textColor: whiteColor,
+                                onPress: () async {
+                                  try {
+                                  await context.read<AuthCubit>().signInWithEmail(emailController.text, passwordController.text);
+                                  }catch (error) {
+                                    showSnackBar(context, redColor, error.toString());
+                                  }
+                                }),
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Divider(
+                                  thickness: 0.5,
+                                  color: Colors.grey[400],
+                                ),
+                              ),
+                              const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8),
+                                child: Text(createNewAccount,
+                                    style: TextStyle(color: darkFontGrey)),
+                              ),
+                              Expanded(
+                                child: Divider(
+                                  thickness: 0.5,
+                                  color: Colors.grey[400],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            width: double.infinity,
+                            child: myButton(
+                                color: mainColor,
+                                title: signUp,
+                                textColor: whiteColor,
+                                onPress: () {
+                                  Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const RegisteredPage()),
+                                        (route) => false,
+                                  );
+                                }),
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Divider(
+                                  thickness: 0.5,
+                                  color: Colors.grey[400],
+                                ),
+                              ),
+                              const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8),
+                                child: Text(loginWith,
+                                    style: TextStyle(color: darkFontGrey)),
+                              ),
+                              Expanded(
+                                child: Divider(
+                                  thickness: 0.5,
+                                  color: Colors.grey[400],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 5),
+                          CircularTile(
+                              imagePath: 'assets/icons/google_new.png',
+                              onTap: () async{
+                                await context.read<AuthCubit>().signInWithGoogle();
                               }),
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Divider(
-                                thickness: 0.5,
-                                color: Colors.grey[400],
-                              ),
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8),
-                              child: Text(createNewAccount,
-                                  style: TextStyle(color: darkFontGrey)),
-                            ),
-                            Expanded(
-                              child: Divider(
-                                thickness: 0.5,
-                                color: Colors.grey[400],
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        SizedBox(
-                          width: double.infinity,
-                          child: myButton(
-                              color: mainColor,
-                              title: signUp,
-                              textColor: whiteColor,
-                              onPress: () {
-                                nextScreen(context, const RegisteredPage());
-                              }),
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Divider(
-                                thickness: 0.5,
-                                color: Colors.grey[400],
-                              ),
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8),
-                              child: Text(loginWith,
-                                  style: TextStyle(color: darkFontGrey)),
-                            ),
-                            Expanded(
-                              child: Divider(
-                                thickness: 0.5,
-                                color: Colors.grey[400],
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 5),
-                        CircularTile(
-                            imagePath: 'assets/icons/google_new.png',
-                            onTap: () {}),
-                        const SizedBox(height: 5),
-                      ],
+                          const SizedBox(height: 5),
+                        ],
+                      ),
                     ),
                   ),
                 ),

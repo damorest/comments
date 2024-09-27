@@ -1,6 +1,4 @@
-import 'package:comments/consts/firebase_consts.dart';
 import 'package:comments/screens/home_screen/home_page.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../blocs/auth/auth_cubit.dart';
@@ -19,28 +17,12 @@ class RegisteredPage extends StatefulWidget {
 }
 
 class _RegisteredPageState extends State<RegisteredPage> {
-  FirebaseAuth _auth = auth;
+
   var nameController = TextEditingController();
   var emailController = TextEditingController();
   var passwordController = TextEditingController();
   var retypePasswordController = TextEditingController();
 
-  Future<void> checkUserExist(String email, String password) async {
-    try {
-      await _auth.createUserWithEmailAndPassword(email: email, password: password);
-      showSnackBar(context, mainColor, userCreateMessage);
-      nextScreen(context, const MyHomePage());
-    } on FirebaseAuthException catch (e) {
-      if (e.code == firebaseExceptionUserAlreadyInUse) {
-        nextScreen(context, const LoginPage());
-        showSnackBar(context, redColor, userAlreadyExist);
-      }else {
-        showSnackBar(context, redColor, e.toString());
-      }
-    } catch (e) {
-      showSnackBar(context, redColor, e.toString());
-    }
-  }
 
   @override
   void initState() {
@@ -57,8 +39,6 @@ class _RegisteredPageState extends State<RegisteredPage> {
 
   @override
   Widget build(BuildContext context) {
-    final authController = context.read<AuthCubit>();
-
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -101,102 +81,115 @@ class _RegisteredPageState extends State<RegisteredPage> {
                 ),
                 child: Padding(
                   padding: const EdgeInsets.only(left: 16.0, right: 16.0),
-                  child: BlocBuilder<AuthCubit, AuthState>(
-                      builder: (context, state) {
-                    return Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 16),
-                          child: customTextField(
-                              lable: name,
-                              hint: nameHint,
-                              controller: nameController,
-                              isPass: false),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 16),
-                          child: customTextField(
-                              lable: email,
-                              hint: emailHint,
-                              controller: emailController,
-                              isPass: false),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 16),
-                          child: customTextField(
-                              lable: password,
-                              hint: passwordHint,
-                              controller: passwordController,
-                              isPass: true),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 16),
-                          child: customTextField(
-                              lable: retypePassword,
-                              hint: passwordHint,
-                              controller: retypePasswordController,
-                              isPass: true),
-                        ),
-                        const SizedBox(height: 5),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 2),
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: state is AuthLoading
-                                ? const CircularProgressIndicator(
-                                    valueColor:
-                                        AlwaysStoppedAnimation(mainColor),
-                                  )
-                                : myButton(
-                                    color: nameController.text.isNotEmpty &&
-                                            emailController.text.isNotEmpty &&
-                                            passwordController
-                                                .text.isNotEmpty &&
-                                            retypePasswordController
-                                                .text.isNotEmpty
-                                        ? mainColor
-                                        : lightGrey,
-                                    title: signUp,
-                                    textColor: whiteColor,
-                                    onPress: () async {
-                                      try {
-                                        await checkUserExist(emailController.text, passwordController.text);
-                                      } catch (e) {
-                                        showSnackBar(context, mainColor, e);
-                                      }
-                                    },
-                                  ),
+                  child: BlocListener<AuthCubit, AuthState>(
+                    listener: (context, state) {
+                      if (state is AuthSuccess) {
+                        showSnackBar(context, mainColor, userCreateMessage);
+                        nextScreen(context, const MyHomePage());
+                      } else if (state is AuthUserAlreadyExists) {
+                        showSnackBar(context, redColor, userAlreadyExist);
+                        nextScreenReplace(context, const LoginPage());
+                      } else if (state is AuthFailure) {
+                        showSnackBar(context, redColor, state.error);
+                      }
+                    },
+                    child: BlocBuilder<AuthCubit, AuthState>(
+                        builder: (context, state) {
+                      return Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 16),
+                            child: customTextField(
+                                lable: name,
+                                hint: nameHint,
+                                controller: nameController,
+                                isPass: false),
                           ),
-                        ),
-                        const SizedBox(height: 10),
-                        GestureDetector(
-                          onTap: () {
-                            nextScreenReplace(context, const LoginPage());
-                          },
-                          child: RichText(
-                              text: const TextSpan(
-                            children: [
-                              TextSpan(
-                                text: alreadyHavenAccount,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: darkFontGrey,
+                          Padding(
+                            padding: const EdgeInsets.only(top: 16),
+                            child: customTextField(
+                                lable: email,
+                                hint: emailHint,
+                                controller: emailController,
+                                isPass: false),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 16),
+                            child: customTextField(
+                                lable: password,
+                                hint: passwordHint,
+                                controller: passwordController,
+                                isPass: true),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 16),
+                            child: customTextField(
+                                lable: retypePassword,
+                                hint: passwordHint,
+                                controller: retypePasswordController,
+                                isPass: true),
+                          ),
+                          const SizedBox(height: 5),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: state is AuthLoading
+                                  ? const CircularProgressIndicator(
+                                      valueColor:
+                                          AlwaysStoppedAnimation(mainColor),
+                                    )
+                                  : myButton(
+                                      color: nameController.text.isNotEmpty &&
+                                              emailController.text.isNotEmpty &&
+                                              passwordController
+                                                  .text.isNotEmpty &&
+                                              retypePasswordController
+                                                  .text.isNotEmpty
+                                          ? mainColor
+                                          : lightGrey,
+                                      title: signUp,
+                                      textColor: whiteColor,
+                                      onPress: () async {
+                                        try {
+                                          await context.read<AuthCubit>().registeredWithEmail(emailController.text, passwordController.text);
+                                        } catch (e) {
+                                          showSnackBar(context, redColor, e);
+                                        }
+                                      },
+                                    ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          GestureDetector(
+                            onTap: () {
+                              nextScreen(context, const LoginPage());
+                            },
+                            child: RichText(
+                                text: const TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: alreadyHavenAccount,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: darkFontGrey,
+                                  ),
                                 ),
-                              ),
-                              TextSpan(
-                                text: login,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: mainColor,
+                                TextSpan(
+                                  text: login,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: mainColor,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          )),
-                        ),
-                        const SizedBox(height: 10),
-                      ],
-                    );
-                  }),
+                              ],
+                            )),
+                          ),
+                          const SizedBox(height: 10),
+                        ],
+                      );
+                    }),
+                  ),
                 ),
               ),
             ),
