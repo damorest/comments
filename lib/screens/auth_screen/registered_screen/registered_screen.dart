@@ -152,8 +152,16 @@ class _RegisteredPageState extends State<RegisteredPage> {
                                       textColor: whiteColor,
                                       onPress: () async {
                                         try {
-                                          await context.read<AuthCubit>().registeredWithEmail(emailController.text, passwordController.text);
-                                        } catch (e) {
+                                          if (passwordController.text ==
+                                              retypePasswordController.text) {
+                                            await context.read<AuthCubit>()
+                                                .registeredWithEmail(
+                                                emailController.text,
+                                                passwordController.text);
+                                          }else {
+                                            showSnackBar(context, redColor, passNotRetype);
+                                          }
+                                        }catch (e) {
                                           showSnackBar(context, redColor, e);
                                         }
                                       },
