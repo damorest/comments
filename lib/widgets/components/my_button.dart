@@ -1,7 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-Widget myButton({onPress, color, textColor, title}) {
+Widget myButton({
+required VoidCallback? onPress,
+  color,
+  textColor,
+  title
+}) {
   return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: color,

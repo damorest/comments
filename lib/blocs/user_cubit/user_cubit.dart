@@ -31,7 +31,7 @@ class UserCubit extends Cubit<UserState> {
 
       emit(UserState(users: users));
     } else {
-      emit(UserState());
+      emit(const UserState());
     }
   }
 
@@ -46,6 +46,33 @@ class UserCubit extends Cubit<UserState> {
     } catch (e) {
       print('No users found');
       return null;
+    }
+  }
+
+  Future<void> addCommentToUser(String targetUserId, Comment newComment) async {
+    try {
+    final userRef = _userRef.child(targetUserId);
+
+    final snapshot = await userRef.once();
+    final userData = snapshot.snapshot.value as Map<dynamic, dynamic>?;
+
+    if (userData != null) {
+      final user = UserModel.fromMap(userData);
+
+      final updatedComments = List<Comment>.from(user.comments)..add(newComment);
+
+      await userRef.update({
+        'comments': updatedComments.map((c) => c.toMap()).toList(),
+      });
+
+      final updatedUsers = state.users.map((u) {
+        return u.userId == targetUserId ? u.copyWith(comments: updatedComments) : u;
+      }).toList();
+
+      emit(UserState(users: updatedUsers));
+    }
+    } catch (e) {
+      print('Error adding comment: $e');
     }
   }
 

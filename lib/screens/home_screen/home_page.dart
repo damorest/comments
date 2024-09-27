@@ -1,11 +1,10 @@
-import 'dart:ui';
-
 import 'package:comments/blocs/auth/auth_cubit.dart';
 import 'package:comments/blocs/user_cubit/user_cubit.dart';
 import 'package:comments/consts/colors.dart';
 import 'package:comments/models/user_model.dart';
 import 'package:comments/often_used/often_used_method.dart';
 import 'package:comments/screens/auth_screen/login_screen/login_page.dart';
+import 'package:comments/screens/user_details_screen/user_details_screen.dart';
 import 'package:comments/widgets/components/my_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +33,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: const Text(allUsers),
@@ -62,14 +60,18 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
               ),
-              Text(currentUser == null ? 'Empty' : currentUser.email),
-              // Text(currentUser.email),
+              Text(currentUser == null ? userNotFound : currentUser.email),
               const Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Divider(),
               ),
               const SizedBox(height: 15),
-              const Text('Rate'),
+              Text(
+                currentUser == null ? '0.0': currentUser.rating.toString(),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold
+                ),
+              ),
               const SizedBox(height: 15),
               TextButton(
                   onPressed: () {},
@@ -108,29 +110,40 @@ class _MyHomePageState extends State<MyHomePage> {
         }),
       ),
       body: BlocBuilder<UserCubit, UserState>(
-        builder: (BuildContext context, state) => state.users.isEmpty
-            ? const Center(child: Text(noUsersYet))
-            : ListView.builder(
-                itemCount: state.users.length,
-                itemBuilder: (context, index) => Card(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(state.users[index].email),
-                      ),
-                      const Spacer(),
-                      const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Column(
-                          children: [Icon(Icons.star), Text('4,5')],
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
+        builder: (context, state) {
+          final currentUser = context.read<UserCubit>().getCurrentUser();
+          return state.users.isEmpty
+              ? const Center(child: Text(noUsersYet))
+              : ListView.builder(
+                  itemCount: state.users.length,
+                  itemBuilder: (context, index) =>
+                      state.users[index].userId == currentUser?.userId
+                          ? const SizedBox()
+                          : GestureDetector(
+                        onTap: () => nextScreen(context, UserDetailsPage(user: state.users[index])),
+                            child: Card(
+                                child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(state.users[index].email),
+                                  ),
+                                  const Spacer(),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      children: [
+                                        const Icon(
+                                            Icons.star,
+                                        color: redColor),
+                                        Text(state.users[index].rating.toString())],
+                                    ),
+                                  )
+                                ],
+                              )),
+                          ));
+        },
       ),
     );
   }

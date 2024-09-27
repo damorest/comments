@@ -39,6 +39,26 @@ class UserModel {
       'isAdmin': isAdmin,
     };
   }
+  void addComment(Comment comment) {
+    comments.add(comment);
+  }
+  UserModel copyWith({
+    String? name,
+    String? email,
+    double? rating,
+    List<Comment>? comments,
+    bool? isAdmin,
+  }) {
+    return UserModel(
+      userId: userId,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      rating: rating ?? this.rating,
+      comments: comments ?? this.comments,
+      isAdmin: isAdmin ?? this.isAdmin,
+    );
+  }
+
 }
 
 class Comment {
