@@ -34,3 +34,6 @@ const String anonymous = 'Anonymous';
 const String inputComment = 'Input comment';
 const String commentHint = 'this is the most wonderful person';
 const String cancel = 'cancel';
+const String ratingEmpty = 'rating not selected';
+const String myPage = 'My Page';
+const String myComments = 'My personal comments';

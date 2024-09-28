@@ -119,7 +119,7 @@ class AuthCubit extends Cubit<AuthState> {
       userId: userId,
       name: name,
       email: email,
-      rating: 0.0,
+      rating: 0,
       comments: [],
       isAdmin: false,
     );

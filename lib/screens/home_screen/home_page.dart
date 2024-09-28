@@ -9,6 +9,7 @@ import 'package:comments/widgets/components/my_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 import '../../consts/strings.dart';
 
@@ -24,11 +25,6 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     context.read<UserCubit>().fetchUsers();
-  }
-
-  String getName(String fullName) {
-    final name = fullName.isNotEmpty ? fullName[0] : 'A';
-    return name;
   }
 
   @override
@@ -53,7 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     radius: 37,
                     backgroundColor: lightGrey,
                     child: Text(
-                      currentUser == null ? 'A' : getName(currentUser.email),
+                      currentUser == null ? 'A' : currentUser.email[0],
                       style: const TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 35),
                     ),
@@ -67,28 +63,44 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               const SizedBox(height: 15),
               Text(
-                currentUser == null ? '0.0': currentUser.rating.toString(),
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold
-                ),
+                currentUser == null ? '0.0' : currentUser.rating.toString(),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
+              RatingBar.builder(
+                initialRating: currentUser!.rating.toDouble(),
+                  minRating: 0,
+                  direction: Axis.horizontal,
+                  allowHalfRating: false,
+                  itemCount: 5,
+                  ignoreGestures: true,
+                  itemBuilder: (context, _) => const Icon(
+                        Icons.star,
+                        color: redColor,
+                      ),
+                  onRatingUpdate: (rating) {}),
               const SizedBox(height: 15),
               TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    nextScreenReplace(context, const MyHomePage());
+                  },
                   child: const Text(
-                    'List Users',
+                    allUsers,
                     style: TextStyle(color: mainColor),
                   )),
               TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    nextScreenReplace(context, UserDetailsPage(userId: currentUser.userId));
+                  },
                   child: const Text(
-                    'My Page',
+                    myPage,
                     style: TextStyle(color: mainColor),
                   )),
               TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+
+                  },
                   child: const Text(
-                    'My comments',
+                    myComments,
                     style: TextStyle(color: mainColor),
                   )),
               const Spacer(),
@@ -116,33 +128,33 @@ class _MyHomePageState extends State<MyHomePage> {
               ? const Center(child: Text(noUsersYet))
               : ListView.builder(
                   itemCount: state.users.length,
-                  itemBuilder: (context, index) =>
-                      state.users[index].userId == currentUser?.userId
-                          ? const SizedBox()
-                          : GestureDetector(
-                        onTap: () => nextScreen(context, UserDetailsPage(user: state.users[index])),
-                            child: Card(
-                                child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(state.users[index].email),
-                                  ),
-                                  const Spacer(),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Column(
-                                      children: [
-                                        const Icon(
-                                            Icons.star,
-                                        color: redColor),
-                                        Text(state.users[index].rating.toString())],
-                                    ),
-                                  )
-                                ],
-                              )),
-                          ));
+                  itemBuilder: (context, index) => state.users[index].userId ==
+                          currentUser?.userId
+                      ? const SizedBox()
+                      : GestureDetector(
+                          onTap: () => nextScreen(context,
+                              UserDetailsPage(userId: state.users[index].userId)),
+                          child: Card(
+                              child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(state.users[index].email),
+                              ),
+                              const Spacer(),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  children: [
+                                    const Icon(Icons.star, color: redColor),
+                                    Text(state.users[index].rating.toString())
+                                  ],
+                                ),
+                              )
+                            ],
+                          )),
+                        ));
         },
       ),
     );
