@@ -130,4 +130,24 @@ class UserCubit extends Cubit<UserState> {
     }
   }
 
+  List<Map<String, dynamic>> getCommentsByCurrentUser(UserModel currentUser) {
+    List<Map<String, dynamic>> currentUserCommentsWithUser = [];
+
+    for (var user in state.users) {
+      List<Comment> currentUserComments = user.comments
+          .where((comment) => comment.userId == currentUser.userId)
+          .toList();
+
+      for (var comment in currentUserComments) {
+        currentUserCommentsWithUser.add({
+          'comment': comment,
+          'user': user, // Це користувач, якому був написаний коментар
+        });
+      }
+    }
+
+    return currentUserCommentsWithUser;
+  }
+
+
 }

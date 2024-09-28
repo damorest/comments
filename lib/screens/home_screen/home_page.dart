@@ -12,6 +12,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 import '../../consts/strings.dart';
+import '../my_comments_screen/my_comments_screen.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -62,8 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Divider(),
               ),
               const SizedBox(height: 15),
-              Text(
-                currentUser == null ? '0.0' : currentUser.rating.toString(),
+              Text( currentUser == null ? '0' : '$rating ${currentUser.rating.toString()}',
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               RatingBar.builder(
@@ -97,7 +97,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   )),
               TextButton(
                   onPressed: () {
-
+                    nextScreen(context, MyCommentsPage(userModel: currentUser,));
                   },
                   child: const Text(
                     myComments,

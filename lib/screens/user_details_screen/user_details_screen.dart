@@ -4,6 +4,7 @@ import 'package:comments/models/user_model.dart';
 import 'package:comments/often_used/often_used_method.dart';
 import 'package:comments/screens/home_screen/home_page.dart';
 import 'package:comments/widgets/components/my_button.dart';
+import 'package:comments/widgets/custom_tile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -23,10 +24,8 @@ class UserDetailsPage extends StatefulWidget {
 }
 
 class _UserDetailsPageState extends State<UserDetailsPage> {
-
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -38,153 +37,88 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
         title: const Text(comment),
         centerTitle: true,
       ),
-      body: BlocBuilder<UserCubit, UserState>(
-        builder: (context, state) {
-          final user = context.read<UserCubit>().getUserById(widget.userId);
-          UserModel? currentUser = context.read<UserCubit>().getCurrentUser();
+      body: BlocBuilder<UserCubit, UserState>(builder: (context, state) {
+        final user = context.read<UserCubit>().getUserById(widget.userId);
+        UserModel? currentUser = context.read<UserCubit>().getCurrentUser();
 
-          if (user == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          return SingleChildScrollView(
-            child: SizedBox(
-              height: MediaQuery
-                  .of(context)
-                  .size
-                  .height,
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(
-                        left: 8, right: 8, bottom: 8),
+        if (user == null) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        return SingleChildScrollView(
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height,
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
+                  child: CircleAvatar(
+                    backgroundColor: mainColor,
+                    radius: 40,
                     child: CircleAvatar(
-                      backgroundColor: mainColor,
-                      radius: 40,
-                      child: CircleAvatar(
-                        radius: 37,
-                        backgroundColor: lightGrey,
-                        child: Text(
-                          user == null ? 'A' : user.email[0],
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 35),
-                        ),
+                      radius: 37,
+                      backgroundColor: lightGrey,
+                      child: Text(
+                        user == null ? 'A' : user.email[0],
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 35),
                       ),
                     ),
                   ),
-                  Text(user == null ? '' : user.email),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8),
-                    child: Divider(),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(rating),
-                  RatingBar.builder(
-                    initialRating: user.rating.toDouble(),
-                    minRating: 0,
-                    direction: Axis.horizontal,
-                    allowHalfRating: true,
-                    itemCount: 5,
-                    ignoreGestures: true,
-                    itemBuilder: (context, _) =>
-                    const Icon(
-                      Icons.star,
-                      color: redColor,
-                    ),
-                    onRatingUpdate: (rating) {},
-                  ),
-                  Text(
-                      user == null ? '' : user.rating.toString()),
-                  const Icon(
+                ),
+                Text(user == null ? '' : user.email),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  child: Divider(),
+                ),
+                const SizedBox(height: 10),
+                Text(user == null ? '' : '$rating ${user.rating.toString()}'),
+                RatingBar.builder(
+                  initialRating: user.rating.toDouble(),
+                  minRating: 0,
+                  direction: Axis.horizontal,
+                  allowHalfRating: true,
+                  itemCount: 5,
+                  ignoreGestures: true,
+                  itemBuilder: (context, _) => const Icon(
                     Icons.star,
                     color: redColor,
                   ),
-                  const Text(comment),
-                  const SizedBox(height: 5),
-                  currentUser?.userId != user.userId ?
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8, right: 8),
-                    child: SizedBox(
-                      width: MediaQuery
-                          .of(context)
-                          .size
-                          .width,
-                      child: myButton(
-                          onPress: () => _showCommentDialog(context, user),
-                          color: mainColor,
-                          textColor: whiteColor,
-                          title: add),
-                    ),
-                  )
-                  : const SizedBox(),
-                  user.comments.isNotEmpty
-                      ? Expanded(
-                    child: ListView.builder(
-                        itemCount: user.comments.length,
-                        itemBuilder: (context, index) =>
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color: mainColor,
-                                        width: 1.0,
-                                        style: BorderStyle.solid)),
-                                child: Column(
-                                  children: [
-                                    RatingBar.builder(
-                                      initialRating: user.comments[index]
-                                          .rating.toDouble(),
-                                      minRating: 0,
-                                      direction: Axis.horizontal,
-                                      allowHalfRating: false,
-                                      itemCount: 5,
-                                      itemSize: 25,
-                                      itemBuilder: (context, _) =>
-                                      const Icon(
-                                        Icons.star,
-                                        color: redColor,
-                                      ),
-                                      ignoreGestures: true,
-                                      onRatingUpdate: (
-                                          double value) {},
-                                    ),
-                                    Text(user.comments[index].content),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(
-                                                  8.0),
-                                              child: Text(user
-                                                  .comments[index]
-                                                  .userId
-                                                  .isEmpty
-                                                  ? anonymous
-                                                  : 'User with ID : ${user.comments[index]
-                                                  .userId[0]}'),
-                                            )),
-                                        Expanded(
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(
-                                                  8.0),
-                                              child: Text(user.comments[index]
-                                                  .timestamp
-                                                  .toString()),
-                                            ))
-                                      ],
-                                    )
-                                  ],
-                                ),
-                              ),
-                            )),
-                  )
-                      : const SizedBox(),
-                ],
-              ),
+                  onRatingUpdate: (rating) {},
+                ),
+                const Text(comment),
+                const SizedBox(height: 5),
+                currentUser?.userId != user.userId
+                    ? Padding(
+                        padding: const EdgeInsets.only(left: 8, right: 8),
+                        child: SizedBox(
+                          width: MediaQuery.of(context).size.width,
+                          child: myButton(
+                              onPress: () => _showCommentDialog(context, user),
+                              color: mainColor,
+                              textColor: whiteColor,
+                              title: add),
+                        ),
+                      )
+                    : const SizedBox(),
+                user.comments.isNotEmpty
+                    ? Expanded(
+                        child: ListView.builder(
+                            itemCount: user.comments.length,
+                            itemBuilder: (context, index) =>
+                              customTile(
+                                  user.comments[index].rating,
+                                  user.comments[index].content,
+                                  user.comments[index].userId[0],
+                                  user.comments[index].timestamp.toString().split('.')[0]
+                                  )
+                        ),
+                      )
+                    : const SizedBox(),
+              ],
             ),
-          );
-        }
-      ),
+          ),
+        );
+      }),
     );
   }
 
@@ -233,7 +167,8 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
             TextButton(
               onPressed: () {
                 if (selectedRating != 0) {
-                  _addComment(context, commentController.text, selectedRating, user);
+                  _addComment(
+                      context, commentController.text, selectedRating, user);
                   commentController.clear();
                   Navigator.pop(context);
                 } else {
@@ -251,7 +186,8 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     );
   }
 
-  void _addComment(BuildContext context, String content, int rating, UserModel userModel) {
+  void _addComment(
+      BuildContext context, String content, int rating, UserModel userModel) {
     if (rating == 0) return;
     final currentUser = auth.currentUser;
     if (currentUser != null) {
@@ -267,7 +203,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
           .read<UserCubit>()
           .addCommentToUser(userModel.userId, newComment)
           .then((_) => setState(() {
-        userModel.comments.add(newComment);
+                userModel.comments.add(newComment);
               }));
       context.read<UserCubit>().updateUserRating(userModel.userId);
     }

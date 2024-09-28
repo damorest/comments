@@ -105,7 +105,3 @@ class Comment {
   }
 }
 
-List<Comment> filterCommentsByUser(String currentUserId, List<Comment> comments) {
-  return comments.where((comment) => comment.userId == currentUserId).toList();
-}
-
