@@ -14,9 +14,10 @@ class UserState extends Equatable {
   List<Object?> get props => [users];
 }
 
+
 class UserCubit extends Cubit<UserState> {
   final DatabaseReference _userRef =
-      dataBase.ref().child(usersCollection);
+  dataBase.ref().child(usersCollection);
 
   UserCubit() : super(const UserState());
 
@@ -32,6 +33,15 @@ class UserCubit extends Cubit<UserState> {
       emit(UserState(users: users));
     } else {
       emit(const UserState());
+    }
+  }
+
+  UserModel? getUserById(String userId) {
+    try {
+      return state.users.firstWhere((user) => user.userId == userId);
+    } catch (e) {
+      print('User not found');
+      return null;
     }
   }
 
@@ -51,26 +61,28 @@ class UserCubit extends Cubit<UserState> {
 
   Future<void> addCommentToUser(String targetUserId, Comment newComment) async {
     try {
-    final userRef = _userRef.child(targetUserId);
+      final userRef = _userRef.child(targetUserId);
 
-    final snapshot = await userRef.once();
-    final userData = snapshot.snapshot.value as Map<dynamic, dynamic>?;
+      final snapshot = await userRef.once();
+      final userData = snapshot.snapshot.value as Map<dynamic, dynamic>?;
 
-    if (userData != null) {
-      final user = UserModel.fromMap(userData);
+      if (userData != null) {
+        final user = UserModel.fromMap(userData);
 
-      final updatedComments = List<Comment>.from(user.comments)..add(newComment);
+        final updatedComments = List<Comment>.from(user.comments)
+          ..add(newComment);
 
-      await userRef.update({
-        'comments': updatedComments.map((c) => c.toMap()).toList(),
-      });
+        await userRef.update({
+          'comments': updatedComments.map((c) => c.toMap()).toList(),
+        });
 
-      final updatedUsers = state.users.map((u) {
-        return u.userId == targetUserId ? u.copyWith(comments: updatedComments) : u;
-      }).toList();
+        final updatedUsers = state.users.map((u) {
+          return u.userId == targetUserId ? u.copyWith(
+              comments: updatedComments) : u;
+        }).toList();
 
-      emit(UserState(users: updatedUsers));
-    }
+        emit(UserState(users: updatedUsers));
+      }
     } catch (e) {
       print('Error adding comment: $e');
     }
@@ -79,4 +91,63 @@ class UserCubit extends Cubit<UserState> {
   void clearUser(User user) {
     emit(const UserState());
   }
+
+  Future<void> updateUserRating(String userId) async {
+    final userRef = dataBase.ref('$usersCollection/$userId');
+
+    final comments = await fetchUserComments(userId);
+
+    if (comments.isNotEmpty) {
+      int totalRating = comments.fold(
+          0, (sum, comment) => sum + comment.rating);
+      int averageRating = (totalRating / comments.length).round();
+
+      await userRef.update({'rating': averageRating});
+      fetchUsers();
+    }
+  }
+
+  Future<List<Comment>> fetchUserComments(String userId) async {
+    try {
+      final userRef = dataBase.ref('$usersCollection/$userId');
+
+      final snapshot = await userRef.once();
+      final userData = snapshot.snapshot.value as Map<dynamic, dynamic>?;
+
+      if (userData != null && userData.containsKey('comments')) {
+        final commentsData = userData['comments'] as List<dynamic>;
+
+        final comments = commentsData.map((commentData) {
+          return Comment.fromMap(commentData);
+        }).toList();
+        return comments;
+      } else {
+        return [];
+      }
+    } catch (error) {
+      print(error.toString());
+      return [];
+    }
+  }
+
+  List<Map<String, dynamic>> getCommentsByCurrentUser(UserModel currentUser) {
+    List<Map<String, dynamic>> currentUserCommentsWithUser = [];
+
+    for (var user in state.users) {
+      List<Comment> currentUserComments = user.comments
+          .where((comment) => comment.userId == currentUser.userId)
+          .toList();
+
+      for (var comment in currentUserComments) {
+        currentUserCommentsWithUser.add({
+          'comment': comment,
+          'user': user, // Це користувач, якому був написаний коментар
+        });
+      }
+    }
+
+    return currentUserCommentsWithUser;
+  }
+
+
 }

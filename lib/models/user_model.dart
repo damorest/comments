@@ -2,7 +2,7 @@ class UserModel {
   final String userId;
   final String name;
   final String email;
-  final double rating;
+  int rating;
   final List<Comment> comments;
   bool isAdmin;
 
@@ -20,7 +20,7 @@ class UserModel {
       userId: data['userId'] ?? '',
       name: data['name'] ?? '',
       email: data['email'] ?? '',
-      rating: (data['rating'] ?? 0.0).toDouble(),
+      rating: (data['rating'] ?? 0).toInt(),
       comments: (data['comments'] as List<dynamic>?)
           ?.map((comment) => Comment.fromMap(comment))
           .toList() ??
@@ -45,7 +45,7 @@ class UserModel {
   UserModel copyWith({
     String? name,
     String? email,
-    double? rating,
+    int? rating,
     List<Comment>? comments,
     bool? isAdmin,
   }) {
@@ -58,6 +58,14 @@ class UserModel {
       isAdmin: isAdmin ?? this.isAdmin,
     );
   }
+  void calculateAverageRating() {
+    if (comments.isNotEmpty) {
+      int totalRating = comments.fold(0, (sum, comment) => sum + comment.rating);
+      rating = (totalRating / comments.length).round();
+    } else {
+      rating = 0;
+    }
+  }
 
 }
 
@@ -66,12 +74,14 @@ class Comment {
   final String userId;
   final String content;
   final DateTime timestamp;
+  final int rating;
 
   Comment({
     required this.commentId,
     required this.userId,
     required this.content,
     required this.timestamp,
+    required this.rating,
   });
 
   factory Comment.fromMap(Map<dynamic, dynamic> data) {
@@ -80,6 +90,7 @@ class Comment {
       userId: data['userId'] ?? '',
       content: data['content'] ?? '',
       timestamp: DateTime.parse(data['timestamp'] ?? DateTime.now().toIso8601String()),
+      rating: (data['rating'] ?? 0).toInt(),
     );
   }
 
@@ -89,10 +100,8 @@ class Comment {
       'userId': userId,
       'content': content,
       'timestamp': timestamp.toIso8601String(),
+      'rating' : rating
     };
   }
 }
 
-List<Comment> filterCommentsByUser(String currentUserId, List<Comment> comments) {
-  return comments.where((comment) => comment.userId == currentUserId).toList();
-}
