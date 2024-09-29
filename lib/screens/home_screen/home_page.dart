@@ -159,55 +159,63 @@ class _MyHomePageState extends State<MyHomePage> {
                           onLongPressStart: currentUser!.isAdmin == true
                               ? (details) {
                                   showMenu(
-                                    context: context,
-                                    position: RelativeRect.fromLTRB(
-                                      details.globalPosition.dx,
-                                      details.globalPosition.dy,
-                                      details.globalPosition.dx,
-                                      details.globalPosition.dy,
-                                    ),
-                                    items: [
-                                      PopupMenuItem(
-                                          child: state.users[index].isAdmin ==
-                                                  true
-                                              ? const Row(
-                                                  children: [
-                                                    Row(
-                                                      children: [
-                                                        Icon(
-                                                            Icons
-                                                                .cancel_outlined,
-                                                            color: redColor),
-                                                        Icon(
-                                                            Icons
-                                                                .local_police_outlined,
-                                                            color: redColor),
-                                                      ],
-                                                    ),
-                                                    SizedBox(width: 8),
-                                                    Text(notAdmin),
-                                                  ],
-                                                )
-                                              : const Row(
-                                                  children: [
-                                                    Icon(
-                                                        Icons
-                                                            .local_police_outlined,
-                                                        color: mainColor),
-                                                    SizedBox(width: 8),
-                                                    Text(makeAdmin),
-                                                  ],
-                                                ),
-                                          onTap: () {
-                                            print('delete comment');
-                                            // context
-                                            //     .read<ArgueCubit>()
-                                            //     .deleteArgue(filteredArguesList[index].id);
-                                            // Future.delayed(Duration.zero, () {
-                                            //   showSnackBar(context, Colors.blue,
-                                            //       '${filteredArguesList[index].name} $deleted');
-                                          }),
-                                    ],
+                                      context: context,
+                                      position: RelativeRect.fromLTRB(
+                                        details.globalPosition.dx,
+                                        details.globalPosition.dy,
+                                        details.globalPosition.dx,
+                                        details.globalPosition.dy,
+                                      ),
+                                      items: [
+                                        PopupMenuItem(
+                                            child: state.users[index].isAdmin ==
+                                                    true
+                                                ? const Row(
+                                                    children: [
+                                                      Row(
+                                                        children: [
+                                                          Icon(
+                                                              Icons
+                                                                  .cancel_outlined,
+                                                              color: redColor),
+                                                          Icon(
+                                                              Icons
+                                                                  .local_police_outlined,
+                                                              color: redColor),
+                                                        ],
+                                                      ),
+                                                      SizedBox(width: 8),
+                                                      Text(notAdmin),
+                                                    ],
+                                                  )
+                                                : const Row(
+                                                    children: [
+                                                      Icon(
+                                                          Icons
+                                                              .local_police_outlined,
+                                                          color: mainColor),
+                                                      SizedBox(width: 8),
+                                                      Text(makeAdmin),
+                                                    ],
+                                                  ),
+                                            onTap: () {
+                                              context
+                                                  .read<UserCubit>()
+                                                  .updateUserAdminRole(
+                                                      state.users[index].userId,
+                                                      state.users[index]
+                                                                  .isAdmin ==
+                                                              true
+                                                          ? false
+                                                          : true);
+                                              Future.delayed(Duration.zero, () {
+                                                showSnackBar(
+                                                    context,
+                                                    Colors.blue,
+                                                    '${state.users[index].name} $roleChange');
+                                              });
+                                            })
+                                      ]
                                   );
                                 }
                               : (details) {},

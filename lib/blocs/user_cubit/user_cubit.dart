@@ -120,10 +120,6 @@ class UserCubit extends Cubit<UserState> {
   }
 
 
-  void clearUser(User user) {
-    emit(const UserState());
-  }
-
   Future<void> updateUserRating(String userId) async {
     final userRef = dataBase.ref('$usersCollection/$userId');
 
@@ -181,5 +177,27 @@ class UserCubit extends Cubit<UserState> {
     return currentUserCommentsWithUser;
   }
 
+  Future<void> updateUserAdminRole(String targetUserId, bool isAdmin) async {
+    try {
+      final userRef = _userRef.child(targetUserId);
 
+      await userRef.update({
+        'isAdmin' : isAdmin
+      });
+
+        final updatedUsers = state.users.map((u) {
+          return u.userId == targetUserId ? u.copyWith(
+              isAdmin: isAdmin) : u;
+        }).toList();
+
+        emit(UserState(users: updatedUsers));
+
+    } catch (e) {
+      print('Error updating user role $e');
+    }
+  }
+
+  void clearUser(User user) {
+    emit(const UserState());
+  }
 }

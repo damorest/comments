@@ -41,3 +41,4 @@ const String myPage = 'My Page';
 const String myComments = 'My personal comments';
 const String makeAdmin = 'make admin';
 const String notAdmin = 'not admin';
+const String roleChange = 'admin role change';
