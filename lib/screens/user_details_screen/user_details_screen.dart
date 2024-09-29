@@ -1,4 +1,3 @@
-import 'package:comments/blocs/auth/auth_cubit.dart';
 import 'package:comments/consts/firebase_consts.dart';
 import 'package:comments/models/user_model.dart';
 import 'package:comments/often_used/often_used_method.dart';
@@ -117,7 +116,9 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                         child: ListView.builder(
                             itemCount: user.comments.length,
                             itemBuilder: (context, index) => GestureDetector(
-                                  onLongPressStart: (details) {
+                                  onLongPressStart:
+                                      currentUser!.isAdmin == true ?
+                                      (details) {
                                     showMenu(
                                       context: context,
                                       position: RelativeRect.fromLTRB(
@@ -137,17 +138,22 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                               ],
                                             ),
                                             onTap: () {
-                                              print('delete comment');
-                                              // context
-                                              //     .read<ArgueCubit>()
-                                              //     .deleteArgue(filteredArguesList[index].id);
-                                              // Future.delayed(Duration.zero, () {
-                                              //   showSnackBar(context, Colors.blue,
-                                              //       '${filteredArguesList[index].name} $deleted');
-                                            }),
+                                              context
+                                                  .read<UserCubit>()
+                                                  .deleteCommentToUser(
+                                                      user.userId,
+                                                      user.comments[index]);
+                                              Future.delayed(Duration.zero, () {
+                                                showSnackBar(
+                                                    context,
+                                                    Colors.blue,
+                                                    '$comment $deleted');
+                                              });
+                                            })
                                       ],
                                     );
-                                  },
+                                  }
+                                  : (details) {},
                                   child: customTile(
                                       user.comments[index].rating,
                                       user.comments[index].content,

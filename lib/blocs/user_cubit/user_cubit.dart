@@ -88,6 +88,38 @@ class UserCubit extends Cubit<UserState> {
     }
   }
 
+  Future<void> deleteCommentToUser(String targetUserId, Comment comment) async {
+    try {
+      final userRef = _userRef.child(targetUserId);
+
+      final snapshot = await userRef.once();
+      final userData = snapshot.snapshot.value as Map<dynamic, dynamic>?;
+
+      if (userData != null) {
+        final user = UserModel.fromMap(userData);
+
+        final updatedComments = List<Comment>.from(user.comments)
+          ..removeWhere((c) => c.commentId == comment.commentId);
+
+        await userRef.update({
+          'comments': updatedComments.map((c) => c.toMap()).toList(),
+        });
+
+        final updatedUsers = state.users.map((u) {
+          return u.userId == targetUserId ? u.copyWith(
+              comments: updatedComments) : u;
+        }).toList();
+
+        updateUserRating(targetUserId);
+
+        emit(UserState(users: updatedUsers));
+      }
+    } catch (e) {
+      print('Error delete comment: $e');
+    }
+  }
+
+
   void clearUser(User user) {
     emit(const UserState());
   }

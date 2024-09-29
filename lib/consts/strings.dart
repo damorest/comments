@@ -31,6 +31,7 @@ const String rating = 'Rating :';
 const String addComment = 'add a comment about this user';
 const String add = 'add';
 const String delete = 'delete';
+const String deleted = 'deleted';
 const String anonymous = 'Anonymous';
 const String inputComment = 'Input comment';
 const String commentHint = 'this is the most wonderful person';
