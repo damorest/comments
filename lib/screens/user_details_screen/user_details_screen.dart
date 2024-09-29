@@ -65,7 +65,19 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                     ),
                   ),
                 ),
-                Text(user == null ? '' : user.email),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    const SizedBox(),
+                    Text(user == null ? '' : user.email),
+                    user.isAdmin == true
+                        ? const Icon(
+                            Icons.local_police_outlined,
+                            color: mainColor,
+                          )
+                        : const SizedBox()
+                  ],
+                ),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 8),
                   child: Divider(),
@@ -104,14 +116,46 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                     ? Expanded(
                         child: ListView.builder(
                             itemCount: user.comments.length,
-                            itemBuilder: (context, index) =>
-                              customTile(
-                                  user.comments[index].rating,
-                                  user.comments[index].content,
-                                  user.comments[index].userId[0],
-                                  user.comments[index].timestamp.toString().split('.')[0]
-                                  )
-                        ),
+                            itemBuilder: (context, index) => GestureDetector(
+                                  onLongPressStart: (details) {
+                                    showMenu(
+                                      context: context,
+                                      position: RelativeRect.fromLTRB(
+                                        details.globalPosition.dx,
+                                        details.globalPosition.dy,
+                                        details.globalPosition.dx,
+                                        details.globalPosition.dy,
+                                      ),
+                                      items: [
+                                        PopupMenuItem(
+                                            child: const Row(
+                                              children: [
+                                                Icon(Icons.delete,
+                                                    color: Colors.red),
+                                                SizedBox(width: 8),
+                                                Text(delete),
+                                              ],
+                                            ),
+                                            onTap: () {
+                                              print('delete comment');
+                                              // context
+                                              //     .read<ArgueCubit>()
+                                              //     .deleteArgue(filteredArguesList[index].id);
+                                              // Future.delayed(Duration.zero, () {
+                                              //   showSnackBar(context, Colors.blue,
+                                              //       '${filteredArguesList[index].name} $deleted');
+                                            }),
+                                      ],
+                                    );
+                                  },
+                                  child: customTile(
+                                      user.comments[index].rating,
+                                      user.comments[index].content,
+                                      user.comments[index].userId[0],
+                                      user.comments[index].timestamp
+                                          .toString()
+                                          .split('.')[0]),
+                                )),
                       )
                     : const SizedBox(),
               ],

@@ -57,17 +57,32 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
               ),
-              Text(currentUser == null ? userNotFound : currentUser.email),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  const SizedBox(),
+                  Text(currentUser == null ? userNotFound : currentUser.email),
+                  currentUser!.isAdmin == true
+                      ? const Icon(
+                          Icons.local_police_outlined,
+                          color: mainColor,
+                        )
+                      : const SizedBox()
+                ],
+              ),
               const Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Divider(),
               ),
               const SizedBox(height: 15),
-              Text( currentUser == null ? '0' : '$rating ${currentUser.rating.toString()}',
+              Text(
+                currentUser == null
+                    ? '0'
+                    : '$rating ${currentUser.rating.toString()}',
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               RatingBar.builder(
-                initialRating: currentUser!.rating.toDouble(),
+                  initialRating: currentUser!.rating.toDouble(),
                   minRating: 0,
                   direction: Axis.horizontal,
                   allowHalfRating: false,
@@ -89,7 +104,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   )),
               TextButton(
                   onPressed: () {
-                    nextScreenReplace(context, UserDetailsPage(userId: currentUser.userId));
+                    nextScreenReplace(
+                        context, UserDetailsPage(userId: currentUser.userId));
                   },
                   child: const Text(
                     myPage,
@@ -97,7 +113,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   )),
               TextButton(
                   onPressed: () {
-                    nextScreen(context, MyCommentsPage(userModel: currentUser,));
+                    nextScreen(
+                        context,
+                        MyCommentsPage(
+                          userModel: currentUser,
+                        ));
                   },
                   child: const Text(
                     myComments,
@@ -132,17 +152,79 @@ class _MyHomePageState extends State<MyHomePage> {
                           currentUser?.userId
                       ? const SizedBox()
                       : GestureDetector(
-                          onTap: () => nextScreen(context,
-                              UserDetailsPage(userId: state.users[index].userId)),
+                          onTap: () => nextScreen(
+                              context,
+                              UserDetailsPage(
+                                  userId: state.users[index].userId)),
+                          onLongPressStart: currentUser!.isAdmin == true
+                              ? (details) {
+                                  showMenu(
+                                    context: context,
+                                    position: RelativeRect.fromLTRB(
+                                      details.globalPosition.dx,
+                                      details.globalPosition.dy,
+                                      details.globalPosition.dx,
+                                      details.globalPosition.dy,
+                                    ),
+                                    items: [
+                                      PopupMenuItem(
+                                          child: state.users[index].isAdmin ==
+                                                  true
+                                              ? const Row(
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        Icon(
+                                                            Icons
+                                                                .cancel_outlined,
+                                                            color: redColor),
+                                                        Icon(
+                                                            Icons
+                                                                .local_police_outlined,
+                                                            color: redColor),
+                                                      ],
+                                                    ),
+                                                    SizedBox(width: 8),
+                                                    Text(notAdmin),
+                                                  ],
+                                                )
+                                              : const Row(
+                                                  children: [
+                                                    Icon(
+                                                        Icons
+                                                            .local_police_outlined,
+                                                        color: mainColor),
+                                                    SizedBox(width: 8),
+                                                    Text(makeAdmin),
+                                                  ],
+                                                ),
+                                          onTap: () {
+                                            print('delete comment');
+                                            // context
+                                            //     .read<ArgueCubit>()
+                                            //     .deleteArgue(filteredArguesList[index].id);
+                                            // Future.delayed(Duration.zero, () {
+                                            //   showSnackBar(context, Colors.blue,
+                                            //       '${filteredArguesList[index].name} $deleted');
+                                          }),
+                                    ],
+                                  );
+                                }
+                              : (details) {},
                           child: Card(
                               child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Text(state.users[index].email),
                               ),
-                              const Spacer(),
+                              state.users[index].isAdmin == true
+                                  ? const Icon(
+                                      Icons.local_police_outlined,
+                                      color: mainColor,
+                                    )
+                                  : const SizedBox(),
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Column(
