@@ -83,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: Column(
                     children: [
                       Text(
-                        currentUser == null
+                        currentUser.rating == 0
                             ? '0'
                             : '$rating ${currentUser.rating.toString()}',
                         style: const TextStyle(fontWeight: FontWeight.bold),
@@ -120,6 +120,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       )),
                   TextButton(
                       onPressed: () {
+
                         nextScreen(
                             context,
                             MyCommentsPage(
@@ -167,7 +168,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               context,
                               UserDetailsPage(
                                   userId: state.users[index].userId)),
-                          onLongPressStart: currentUser!.isAdmin == true
+                          onLongPressStart: currentUser?.isAdmin == true
                               ? (details) {
                                   showMenu(
                                       context: context,

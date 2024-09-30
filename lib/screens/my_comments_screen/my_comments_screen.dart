@@ -16,9 +16,9 @@ class MyCommentsPage extends StatelessWidget {
         context.read<UserCubit>().getCommentsByCurrentUser(userModel);
     return Scaffold(
         appBar: AppBar(
-          title: Text(userModel == null ? '' : userModel.email),
+          title: Text(userModel.email.isEmpty ? '' : userModel.email),
         ),
-        body: userModel.comments.isNotEmpty
+        body: myPersonalCommentsList.isNotEmpty
             ? Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: ListView.builder(

@@ -174,8 +174,9 @@ class UserCubit extends Cubit<UserState> {
           'user': user,
         });
       }
-    }
 
+    }
+    print('LIST CURRENT USER COMMENTS LENGTH : ${currentUserCommentsWithUser.length} ');
     return currentUserCommentsWithUser;
   }
 
