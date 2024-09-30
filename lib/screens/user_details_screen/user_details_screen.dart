@@ -252,12 +252,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
 
       await userCubit
           .addCommentToUser(userModel.userId, newComment);
-      print('ADD COMMENT DONE');
-          // .then((_) => setState(() {
-          //       userModel.comments.add(newComment);
-          //     }));
       await userCubit.updateUserRating(userModel.userId);
-      print('RAYTING DONE');
     }
   }
 }
