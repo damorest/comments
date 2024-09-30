@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "925273350036",
+    "firebase_url": "https://comments-app-2509-default-rtdb.firebaseio.com",
+    "project_id": "comments-app-2509",
+    "storage_bucket": "comments-app-2509.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:925273350036:android:2410538dbb96f297167981",
+        "android_client_info": {
+          "package_name": "com.example.comments"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "925273350036-6f61dharcl9thi6riji6c7388scgnj5h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.comments",
+            "certificate_hash": "6e3c163a13c399499f0c156abae30bf97d280250"
+          }
+        },
+        {
+          "client_id": "925273350036-5rrm0ai800ik5fo16chcg3bqbce80e74.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB0rvBvMOoO1WvRtjPJSOif07u5W3uUn2I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "925273350036-5rrm0ai800ik5fo16chcg3bqbce80e74.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "925273350036-q39e4v1ieqp03ohtshki09j9qsqjaejt.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.comments"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
