@@ -98,7 +98,15 @@ class AuthCubit extends Cubit<AuthState> {
         final credential = GoogleAuthProvider.credential(
             accessToken: googleAuth.accessToken, idToken: googleAuth.idToken);
         final userCredential = await _auth.signInWithCredential(credential);
-        await addUserToDatabase(userCredential);
+
+        final DatabaseReference userRef = dataBase.ref().child(usersCollection).child(userCredential.user!.uid);
+        final snapshot = await userRef.get();
+
+        if (!snapshot.exists) {
+          await addUserToDatabase(userCredential);
+        } else {
+          print('User already exists in the database.');
+        }
         emit(AuthSuccess());
       } else {
         emit(AuthFailure(googleSignInFailed));

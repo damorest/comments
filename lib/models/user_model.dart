@@ -39,9 +39,7 @@ class UserModel {
       'isAdmin': isAdmin,
     };
   }
-  void addComment(Comment comment) {
-    comments.add(comment);
-  }
+
   UserModel copyWith({
     String? name,
     String? email,
@@ -58,15 +56,6 @@ class UserModel {
       isAdmin: isAdmin ?? this.isAdmin,
     );
   }
-  void calculateAverageRating() {
-    if (comments.isNotEmpty) {
-      int totalRating = comments.fold(0, (sum, comment) => sum + comment.rating);
-      rating = (totalRating / comments.length).round();
-    } else {
-      rating = 0;
-    }
-  }
-
 }
 
 class Comment {

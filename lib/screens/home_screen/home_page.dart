@@ -8,6 +8,8 @@ import 'package:comments/screens/user_details_screen/user_details_screen.dart';
 import 'package:comments/widgets/components/my_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
@@ -57,66 +59,95 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
               ),
-              Text(currentUser == null ? userNotFound : currentUser.email),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  const SizedBox(),
+                  Text(currentUser == null ? userNotFound : currentUser.email),
+                  currentUser!.isAdmin == true
+                      ? const Icon(
+                          Icons.local_police_outlined,
+                          color: mainColor,
+                        )
+                      : const SizedBox()
+                ],
+              ),
               const Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Divider(),
               ),
-              const SizedBox(height: 15),
-              Text( currentUser == null ? '0' : '$rating ${currentUser.rating.toString()}',
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              RatingBar.builder(
-                initialRating: currentUser!.rating.toDouble(),
-                  minRating: 0,
-                  direction: Axis.horizontal,
-                  allowHalfRating: false,
-                  itemCount: 5,
-                  ignoreGestures: true,
-                  itemBuilder: (context, _) => const Icon(
-                        Icons.star,
-                        color: redColor,
+              const SizedBox(height: 10),
+              SizedBox(
+                height: MediaQuery.of(context).size.height /2,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Text(
+                        currentUser == null
+                            ? '0'
+                            : '$rating ${currentUser.rating.toString()}',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                  onRatingUpdate: (rating) {}),
-              const SizedBox(height: 15),
-              TextButton(
-                  onPressed: () {
-                    nextScreenReplace(context, const MyHomePage());
-                  },
-                  child: const Text(
-                    allUsers,
-                    style: TextStyle(color: mainColor),
-                  )),
-              TextButton(
-                  onPressed: () {
-                    nextScreenReplace(context, UserDetailsPage(userId: currentUser.userId));
-                  },
-                  child: const Text(
-                    myPage,
-                    style: TextStyle(color: mainColor),
-                  )),
-              TextButton(
-                  onPressed: () {
-                    nextScreen(context, MyCommentsPage(userModel: currentUser,));
-                  },
-                  child: const Text(
-                    myComments,
-                    style: TextStyle(color: mainColor),
-                  )),
-              const Spacer(),
-              Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: myButton(
-                        onPress: () async {
-                          await context.read<AuthCubit>().signOut();
-                          nextScreenReplace(context, const LoginPage());
-                        },
-                        textColor: whiteColor,
-                        title: out,
-                        color: mainColor),
-                  ))
+                  RatingBar.builder(
+                      initialRating: currentUser.rating.toDouble(),
+                      minRating: 0,
+                      direction: Axis.horizontal,
+                      allowHalfRating: false,
+                      itemCount: 5,
+                      ignoreGestures: true,
+                      itemBuilder: (context, _) => const Icon(
+                            Icons.star,
+                            color: redColor,
+                          ),
+                      onRatingUpdate: (rating) {}),
+                  const SizedBox(height: 10),
+                  TextButton(
+                      onPressed: () {
+                        nextScreenReplace(context, const MyHomePage());
+                      },
+                      child: const Text(
+                        allUsers,
+                        style: TextStyle(color: mainColor),
+                      )),
+                  TextButton(
+                      onPressed: () {
+                        nextScreenReplace(
+                            context, UserDetailsPage(userId: currentUser.userId));
+                      },
+                      child: const Text(
+                        myPage,
+                        style: TextStyle(color: mainColor),
+                      )),
+                  TextButton(
+                      onPressed: () {
+                        nextScreen(
+                            context,
+                            MyCommentsPage(
+                              userModel: currentUser,
+                            ));
+                      },
+                      child: const Text(
+                        myComments,
+                        style: TextStyle(color: mainColor),
+                      )),
+                  const SizedBox(height: 10),
+                  Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: myButton(
+                            onPress: () async {
+                              await context.read<AuthCubit>().signOut();
+                              nextScreenReplace(context, const LoginPage());
+                            },
+                            textColor: whiteColor,
+                            title: out,
+                            color: mainColor),
+                      ))
+                    ],
+                  ),
+                ),
+              ),
             ],
           );
         }),
@@ -132,17 +163,88 @@ class _MyHomePageState extends State<MyHomePage> {
                           currentUser?.userId
                       ? const SizedBox()
                       : GestureDetector(
-                          onTap: () => nextScreen(context,
-                              UserDetailsPage(userId: state.users[index].userId)),
+                          onTap: () => nextScreen(
+                              context,
+                              UserDetailsPage(
+                                  userId: state.users[index].userId)),
+                          onLongPressStart: currentUser!.isAdmin == true
+                              ? (details) {
+                                  showMenu(
+                                      context: context,
+                                      position: RelativeRect.fromLTRB(
+                                        details.globalPosition.dx,
+                                        details.globalPosition.dy,
+                                        details.globalPosition.dx,
+                                        details.globalPosition.dy,
+                                      ),
+                                      items: [
+                                        PopupMenuItem(
+                                            child: state.users[index].isAdmin ==
+                                                    true
+                                                ? const Row(
+                                                    children: [
+                                                      Row(
+                                                        children: [
+                                                          Icon(
+                                                              Icons
+                                                                  .cancel_outlined,
+                                                              color: redColor),
+                                                          Icon(
+                                                              Icons
+                                                                  .local_police_outlined,
+                                                              color: redColor),
+                                                        ],
+                                                      ),
+                                                      SizedBox(width: 8),
+                                                      Text(notAdmin),
+                                                    ],
+                                                  )
+                                                : const Row(
+                                                    children: [
+                                                      Icon(
+                                                          Icons
+                                                              .local_police_outlined,
+                                                          color: mainColor),
+                                                      SizedBox(width: 8),
+                                                      Text(makeAdmin),
+                                                    ],
+                                                  ),
+                                            onTap: () {
+                                              context
+                                                  .read<UserCubit>()
+                                                  .updateUserAdminRole(
+                                                      state.users[index].userId,
+                                                      state.users[index]
+                                                                  .isAdmin ==
+                                                              true
+                                                          ? false
+                                                          : true);
+                                              Future.delayed(Duration.zero, () {
+                                                showSnackBar(
+                                                    context,
+                                                    Colors.blue,
+                                                    '${state.users[index].name} $roleChange');
+                                              });
+                                            })
+                                      ]
+                                  );
+                                }
+                              : (details) {},
                           child: Card(
                               child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Padding(
+                              Container(
+                                width: MediaQuery.of(context).size.width / 1.7,
                                 padding: const EdgeInsets.all(8.0),
                                 child: Text(state.users[index].email),
                               ),
-                              const Spacer(),
+                              state.users[index].isAdmin == true
+                                  ? const Icon(
+                                      Icons.local_police_outlined,
+                                      color: mainColor,
+                                    )
+                                  : const SizedBox(),
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Column(

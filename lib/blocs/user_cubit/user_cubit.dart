@@ -88,23 +88,53 @@ class UserCubit extends Cubit<UserState> {
     }
   }
 
-  void clearUser(User user) {
-    emit(const UserState());
+  Future<void> deleteCommentToUser(String targetUserId, Comment comment) async {
+    try {
+      final userRef = _userRef.child(targetUserId);
+
+      final snapshot = await userRef.once();
+      final userData = snapshot.snapshot.value as Map<dynamic, dynamic>?;
+
+      if (userData != null) {
+        final user = UserModel.fromMap(userData);
+
+        final updatedComments = List<Comment>.from(user.comments)
+          ..removeWhere((c) => c.commentId == comment.commentId);
+
+        await userRef.update({
+          'comments': updatedComments.map((c) => c.toMap()).toList(),
+        });
+
+        final updatedUsers = state.users.map((u) {
+          return u.userId == targetUserId ? u.copyWith(
+              comments: updatedComments) : u;
+        }).toList();
+
+        updateUserRating(targetUserId);
+
+        emit(UserState(users: updatedUsers));
+      }
+    } catch (e) {
+      print('Error delete comment: $e');
+    }
   }
+
 
   Future<void> updateUserRating(String userId) async {
     final userRef = dataBase.ref('$usersCollection/$userId');
 
     final comments = await fetchUserComments(userId);
 
-    if (comments.isNotEmpty) {
       int totalRating = comments.fold(
           0, (sum, comment) => sum + comment.rating);
-      int averageRating = (totalRating / comments.length).round();
 
-      await userRef.update({'rating': averageRating});
-      fetchUsers();
-    }
+    int averageRating = comments.isNotEmpty
+        ? (totalRating / comments.length).round()
+        : 0;
+
+        await userRef.update({'rating': averageRating});
+        fetchUsers();
+
   }
 
   Future<List<Comment>> fetchUserComments(String userId) async {
@@ -141,7 +171,7 @@ class UserCubit extends Cubit<UserState> {
       for (var comment in currentUserComments) {
         currentUserCommentsWithUser.add({
           'comment': comment,
-          'user': user, // Це користувач, якому був написаний коментар
+          'user': user,
         });
       }
     }
@@ -149,5 +179,27 @@ class UserCubit extends Cubit<UserState> {
     return currentUserCommentsWithUser;
   }
 
+  Future<void> updateUserAdminRole(String targetUserId, bool isAdmin) async {
+    try {
+      final userRef = _userRef.child(targetUserId);
 
+      await userRef.update({
+        'isAdmin' : isAdmin
+      });
+
+        final updatedUsers = state.users.map((u) {
+          return u.userId == targetUserId ? u.copyWith(
+              isAdmin: isAdmin) : u;
+        }).toList();
+
+        emit(UserState(users: updatedUsers));
+
+    } catch (e) {
+      print('Error updating user role $e');
+    }
+  }
+
+  void clearUser(User user) {
+    emit(const UserState());
+  }
 }

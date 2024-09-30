@@ -1,4 +1,3 @@
-import 'package:comments/blocs/auth/auth_cubit.dart';
 import 'package:comments/consts/firebase_consts.dart';
 import 'package:comments/models/user_model.dart';
 import 'package:comments/often_used/often_used_method.dart';
@@ -65,7 +64,19 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                     ),
                   ),
                 ),
-                Text(user == null ? '' : user.email),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    const SizedBox(),
+                    Text(user == null ? '' : user.email),
+                    user.isAdmin == true
+                        ? const Icon(
+                            Icons.local_police_outlined,
+                            color: mainColor,
+                          )
+                        : const SizedBox()
+                  ],
+                ),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 8),
                   child: Divider(),
@@ -104,14 +115,53 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                     ? Expanded(
                         child: ListView.builder(
                             itemCount: user.comments.length,
-                            itemBuilder: (context, index) =>
-                              customTile(
-                                  user.comments[index].rating,
-                                  user.comments[index].content,
-                                  user.comments[index].userId[0],
-                                  user.comments[index].timestamp.toString().split('.')[0]
-                                  )
-                        ),
+                            itemBuilder: (context, index) => GestureDetector(
+                                  onLongPressStart:
+                                      currentUser!.isAdmin == true ?
+                                      (details) {
+                                    showMenu(
+                                      context: context,
+                                      position: RelativeRect.fromLTRB(
+                                        details.globalPosition.dx,
+                                        details.globalPosition.dy,
+                                        details.globalPosition.dx,
+                                        details.globalPosition.dy,
+                                      ),
+                                      items: [
+                                        PopupMenuItem(
+                                            child: const Row(
+                                              children: [
+                                                Icon(Icons.delete,
+                                                    color: Colors.red),
+                                                SizedBox(width: 8),
+                                                Text(delete),
+                                              ],
+                                            ),
+                                            onTap: () {
+                                              context
+                                                  .read<UserCubit>()
+                                                  .deleteCommentToUser(
+                                                      user.userId,
+                                                      user.comments[index]);
+                                              Future.delayed(Duration.zero, () {
+                                                showSnackBar(
+                                                    context,
+                                                    Colors.blue,
+                                                    '$comment $deleted');
+                                              });
+                                            })
+                                      ],
+                                    );
+                                  }
+                                  : (details) {},
+                                  child: customTile(
+                                      user.comments[index].rating,
+                                      user.comments[index].content,
+                                      user.comments[index].userId[0],
+                                      user.comments[index].timestamp
+                                          .toString()
+                                          .split('.')[0]),
+                                )),
                       )
                     : const SizedBox(),
               ],
@@ -187,8 +237,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   }
 
   void _addComment(
-      BuildContext context, String content, int rating, UserModel userModel) {
-    if (rating == 0) return;
+      BuildContext context, String content, int rating, UserModel userModel) async{
     final currentUser = auth.currentUser;
     if (currentUser != null) {
       final newComment = Comment(
@@ -199,13 +248,11 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
         timestamp: DateTime.now(),
       );
 
-      context
-          .read<UserCubit>()
-          .addCommentToUser(userModel.userId, newComment)
-          .then((_) => setState(() {
-                userModel.comments.add(newComment);
-              }));
-      context.read<UserCubit>().updateUserRating(userModel.userId);
+      final userCubit = context.read<UserCubit>();
+
+      await userCubit
+          .addCommentToUser(userModel.userId, newComment);
+      await userCubit.updateUserRating(userModel.userId);
     }
   }
 }

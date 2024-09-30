@@ -1,7 +1,6 @@
 import 'package:comments/blocs/auth/auth_cubit.dart';
 import 'package:comments/blocs/user_cubit/user_cubit.dart';
 import 'package:comments/screens/auth_screen/login_screen/login_page.dart';
-import 'package:comments/screens/auth_screen/registered_screen/registered_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
