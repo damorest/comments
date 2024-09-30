@@ -171,7 +171,7 @@ class UserCubit extends Cubit<UserState> {
       for (var comment in currentUserComments) {
         currentUserCommentsWithUser.add({
           'comment': comment,
-          'user': user, // Це користувач, якому був написаний коментар
+          'user': user,
         });
       }
     }
