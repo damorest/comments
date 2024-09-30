@@ -18,7 +18,6 @@ class RegisteredPage extends StatefulWidget {
 
 class _RegisteredPageState extends State<RegisteredPage> {
 
-  var nameController = TextEditingController();
   var emailController = TextEditingController();
   var passwordController = TextEditingController();
   var retypePasswordController = TextEditingController();
@@ -27,7 +26,6 @@ class _RegisteredPageState extends State<RegisteredPage> {
   @override
   void initState() {
     super.initState();
-    nameController.addListener(_updateButtonState);
     emailController.addListener(_updateButtonState);
     passwordController.addListener(_updateButtonState);
     retypePasswordController.addListener(_updateButtonState);
@@ -100,14 +98,6 @@ class _RegisteredPageState extends State<RegisteredPage> {
                           Padding(
                             padding: const EdgeInsets.only(top: 16),
                             child: customTextField(
-                                lable: name,
-                                hint: nameHint,
-                                controller: nameController,
-                                isPass: false),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 16),
-                            child: customTextField(
                                 lable: email,
                                 hint: emailHint,
                                 controller: emailController,
@@ -140,8 +130,7 @@ class _RegisteredPageState extends State<RegisteredPage> {
                                           AlwaysStoppedAnimation(mainColor),
                                     )
                                   : myButton(
-                                      color: nameController.text.isNotEmpty &&
-                                              emailController.text.isNotEmpty &&
+                                      color:  emailController.text.isNotEmpty &&
                                               passwordController
                                                   .text.isNotEmpty &&
                                               retypePasswordController
@@ -209,7 +198,6 @@ class _RegisteredPageState extends State<RegisteredPage> {
 
   @override
   void dispose() {
-    nameController.dispose();
     emailController.dispose();
     passwordController.dispose();
     retypePasswordController.dispose();

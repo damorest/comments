@@ -57,7 +57,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                       radius: 37,
                       backgroundColor: lightGrey,
                       child: Text(
-                        user == null ? 'A' : user.email[0],
+                        user.email.isEmpty ? 'A' : user.email[0],
                         style: const TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 35),
                       ),
@@ -68,7 +68,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     const SizedBox(),
-                    Text(user == null ? '' : user.email),
+                    Text(user.email.isEmpty ? '' : user.email),
                     user.isAdmin == true
                         ? const Icon(
                             Icons.local_police_outlined,
@@ -82,7 +82,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                   child: Divider(),
                 ),
                 const SizedBox(height: 10),
-                Text(user == null ? '' : '$rating ${user.rating.toString()}'),
+                Text(user.rating == 0 ? '0' : '$rating ${user.rating.toString()}'),
                 RatingBar.builder(
                   initialRating: user.rating.toDouble(),
                   minRating: 0,
@@ -243,7 +243,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
       final newComment = Comment(
         commentId: DateTime.now().millisecondsSinceEpoch.toString(),
         userId: currentUser.uid,
-        content: content ?? '',
+        content: content,
         rating: rating,
         timestamp: DateTime.now(),
       );
