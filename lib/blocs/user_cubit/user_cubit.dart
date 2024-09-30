@@ -125,14 +125,22 @@ class UserCubit extends Cubit<UserState> {
 
     final comments = await fetchUserComments(userId);
 
-    if (comments.isNotEmpty) {
+    print('COMMENTS LENGTH : ${comments.length}');
+
       int totalRating = comments.fold(
           0, (sum, comment) => sum + comment.rating);
-      int averageRating = (totalRating / comments.length).round();
 
-      await userRef.update({'rating': averageRating});
-      fetchUsers();
-    }
+      print('TOTAL RATING : $totalRating');
+
+    int averageRating = comments.isNotEmpty
+        ? (totalRating / comments.length).round()
+        : 0;
+
+    print('AVERAGE RATING : $averageRating');
+
+        await userRef.update({'rating': averageRating});
+        fetchUsers();
+
   }
 
   Future<List<Comment>> fetchUserComments(String userId) async {

@@ -237,8 +237,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   }
 
   void _addComment(
-      BuildContext context, String content, int rating, UserModel userModel) {
-    if (rating == 0) return;
+      BuildContext context, String content, int rating, UserModel userModel) async{
     final currentUser = auth.currentUser;
     if (currentUser != null) {
       final newComment = Comment(
@@ -249,13 +248,16 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
         timestamp: DateTime.now(),
       );
 
-      context
-          .read<UserCubit>()
-          .addCommentToUser(userModel.userId, newComment)
-          .then((_) => setState(() {
-                userModel.comments.add(newComment);
-              }));
-      context.read<UserCubit>().updateUserRating(userModel.userId);
+      final userCubit = context.read<UserCubit>();
+
+      await userCubit
+          .addCommentToUser(userModel.userId, newComment);
+      print('ADD COMMENT DONE');
+          // .then((_) => setState(() {
+          //       userModel.comments.add(newComment);
+          //     }));
+      await userCubit.updateUserRating(userModel.userId);
+      print('RAYTING DONE');
     }
   }
 }
